@@ -273,9 +273,11 @@ Authorization: Bearer <token>
 
 ## 📝 Lizenz
 
-Dieses Projekt wurde als Showcase für Portfolio-Zwecke erstellt.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe [LICENSE](LICENSE) für Details.
 
 ## 👤 Autor
+
+**Martin Pfeffer** - 2026
 
 Erstellt als Portfolio-Showcase für Fullstack-Entwicklung mit Vue 3, TypeScript, FastAPI und Microservices-Architektur.
 
