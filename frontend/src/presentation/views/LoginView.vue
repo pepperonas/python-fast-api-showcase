@@ -69,8 +69,10 @@ async function handleLogin() {
   try {
     await authStore.login(email.value, password.value)
     router.push('/')
-  } catch (error) {
-    alert('Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+  } catch (error: any) {
+    console.error('Login error:', error)
+    const errorMessage = error?.response?.data?.detail || error?.message || 'Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.'
+    alert(errorMessage)
   } finally {
     loading.value = false
   }

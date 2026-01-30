@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useTaskStore } from '@/application/stores'
 import type { Task } from '@/domain/models'
 
@@ -146,12 +146,12 @@ async function handleSubmit() {
       )
     }
     closeModal()
-  } catch (error) {
-    alert('Fehler beim Speichern der Aufgabe')
+    // Refresh tasks list
+    await taskStore.fetchTasks()
+  } catch (error: any) {
+    console.error('Error saving task:', error)
+    const errorMessage = error?.response?.data?.detail || error?.message || 'Fehler beim Speichern der Aufgabe'
+    alert(errorMessage)
   }
 }
-</script>
-
-<script lang="ts">
-import { onMounted } from 'vue'
 </script>

@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from shared.database import get_db
 from shared.dto import NotificationDTO
+from src.api.dependencies import get_current_user_id
 from src.application.use_cases import (
     SendNotificationUseCase,
     MarkAsReadUseCase,
@@ -47,7 +48,7 @@ manager = ConnectionManager()
 async def get_notifications(
     unread_only: bool = Query(False),
     db: Session = Depends(get_db),
-    current_user_id: str = "user-123"  # TODO: Get from auth token
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get notifications for current user."""
     repository = NotificationRepository(db)

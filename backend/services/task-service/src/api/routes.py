@@ -22,6 +22,7 @@ from src.application.use_cases import (
 )
 from src.infrastructure.repository import TaskRepository, ProjectRepository
 from src.domain.value_objects import TaskStatus, TaskPriority
+from src.api.dependencies import get_current_user_id
 
 router = APIRouter(prefix="/api/v1", tags=["tasks"])
 
@@ -53,11 +54,46 @@ class CreateProjectRequest(BaseModel):
     description: Optional[str] = None
 
 
+@router.get("/tasks", response_model=List[TaskDTO])
+async def get_all_tasks(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
+):
+    """Get all tasks for current user (created by or assigned to)."""
+    repository = TaskRepository(db)
+    # Get tasks created by user or assigned to user
+    from src.infrastructure.models import TaskModel
+    from sqlalchemy import or_
+    db_tasks = db.query(TaskModel)\
+        .filter(or_(TaskModel.created_by == current_user_id, TaskModel.assigned_to == current_user_id))\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+    tasks = [repository._to_domain(db_task) for db_task in db_tasks]
+    return [
+        TaskDTO(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+            status=task.status.value,
+            priority=task.priority.value,
+            project_id=task.project_id,
+            assigned_to=task.assigned_to,
+            created_by=task.created_by,
+            created_at=task.created_at,
+            updated_at=task.updated_at
+        )
+        for task in tasks
+    ]
+
+
 @router.post("/tasks", response_model=TaskDTO, status_code=status.HTTP_201_CREATED)
 async def create_task(
     request: CreateTaskRequest,
     db: Session = Depends(get_db),
-    current_user_id: str = "user-123"  # TODO: Get from auth token
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Create a new task."""
     repository = TaskRepository(db)
@@ -93,7 +129,8 @@ async def create_task(
 @router.get("/tasks/{task_id}", response_model=TaskDTO)
 async def get_task(
     task_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get task by ID."""
     repository = TaskRepository(db)
@@ -122,7 +159,8 @@ async def get_task(
 async def update_task(
     task_id: str,
     request: UpdateTaskRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Update a task."""
     repository = TaskRepository(db)
@@ -159,7 +197,8 @@ async def update_task(
 async def assign_task(
     task_id: str,
     request: AssignTaskRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Assign a task to a user."""
     repository = TaskRepository(db)
@@ -191,7 +230,8 @@ async def get_tasks_by_project(
     project_id: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get tasks by project ID with pagination."""
     repository = TaskRepository(db)
@@ -215,11 +255,32 @@ async def get_tasks_by_project(
     ]
 
 
+@router.get("/projects", response_model=List[ProjectDTO])
+async def get_all_projects(
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
+):
+    """Get all projects for current user."""
+    repository = ProjectRepository(db)
+    projects = await repository.get_by_user(current_user_id)
+    return [
+        ProjectDTO(
+            id=project.id,
+            name=project.name,
+            description=project.description,
+            created_by=project.created_by,
+            created_at=project.created_at,
+            updated_at=project.updated_at
+        )
+        for project in projects
+    ]
+
+
 @router.post("/projects", response_model=ProjectDTO, status_code=status.HTTP_201_CREATED)
 async def create_project(
     request: CreateProjectRequest,
     db: Session = Depends(get_db),
-    current_user_id: str = "user-123"  # TODO: Get from auth token
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Create a new project."""
     repository = ProjectRepository(db)
@@ -249,7 +310,8 @@ async def create_project(
 @router.get("/projects/{project_id}", response_model=ProjectDTO)
 async def get_project(
     project_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get project by ID."""
     repository = ProjectRepository(db)

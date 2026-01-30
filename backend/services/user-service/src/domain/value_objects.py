@@ -1,14 +1,19 @@
 """Value objects for user domain."""
 
-from pydantic import EmailStr, validator
+from pydantic import EmailStr
 from typing import Optional
+import re
 
 
 class Email:
     """Email value object."""
     
     def __init__(self, value: str):
-        self._value = EmailStr.validate(value)
+        # Validate email format using regex (simpler approach)
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, value):
+            raise ValueError(f"Invalid email format: {value}")
+        self._value = value
     
     @property
     def value(self) -> str:
