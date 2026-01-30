@@ -290,7 +290,7 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe [LICENSE](LICENSE) fü
 
 Erstellt als Portfolio-Showcase für Fullstack-Entwicklung mit Vue 3, TypeScript, FastAPI und Microservices-Architektur.
 
-## Danksagungen
+## 🎯 Verwendete Konzepte & Technologien
 
 Dieses Projekt demonstriert moderne Software-Engineering-Praktiken und Best Practices für:
 - Clean Architecture
