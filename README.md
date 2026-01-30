@@ -190,6 +190,24 @@ Nach dem Start der Services ist die automatisch generierte API-Dokumentation ver
 - **Task Service**: http://localhost:8002/docs
 - **Notification Service**: http://localhost:8003/docs
 
+## 📱 Push Notifications
+
+Der Notification Service unterstützt Push Notifications für Smartphones (iOS, Android) und Web-Browser (PWA) über Firebase Cloud Messaging (FCM).
+
+**Features:**
+- ✅ Web Push Notifications (PWA)
+- ✅ Native Mobile App Support (iOS/Android)
+- ✅ User-Präferenzen und Quiet Hours
+- ✅ Rate Limiting und Error Handling
+- ✅ Event-basierte Architektur
+
+**Dokumentation:** Siehe [Push Notifications Implementierungsdokumentation](docs/push-notifications.md) für:
+- Architektur-Übersicht und Design-Entscheidungen
+- Datenbank-Schema und API-Struktur
+- Backend- und Frontend-Implementierung
+- Best Practices für Security und Performance
+- Deployment-Checkliste und Phasen-Plan
+
 ## 📸 Screenshots
 
 <div align="center">
@@ -287,6 +305,11 @@ Authorization: Bearer <token>
   "priority": "high"
 }
 ```
+
+## 📖 Weitere Dokumentation
+
+- **[Push Notifications](docs/push-notifications.md)**: Umfassende Anleitung zur Implementierung von Smartphone-Benachrichtigungen (iOS, Android, Web) mit Firebase Cloud Messaging
+- **[Screenshots](docs/screenshots/README.md)**: Anleitung zum Erstellen von Screenshots für die Dokumentation
 
 ## 🔧 Entwicklung
 
