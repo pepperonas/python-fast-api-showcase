@@ -196,26 +196,32 @@ Nach dem Start der Services ist die automatisch generierte API-Dokumentation ver
 
 ### Login & Registrierung
 ![Login View](docs/screenshots/login.png)
-![Register View](docs/screenshots/register.png)
+*Login-Seite mit E-Mail und Passwort-Feldern*
+
+![Register View](docs/screenshots/registrieren.png)
+*Registrierungsseite für neue Benutzer*
 
 ### Dashboard & Übersicht
 ![Dashboard View](docs/screenshots/dashboard.png)
+*Dashboard mit Übersicht über Projekte, Aufgaben und Benachrichtigungen*
 
 ### Projekte
-![Projects View](docs/screenshots/projects.png)
-![Project Detail View](docs/screenshots/project-detail.png)
+![Projects View](docs/screenshots/projekte.png)
+*Projekte-Übersicht mit Grid-Layout und Bearbeitungsfunktion*
+
+![Project Detail View](docs/screenshots/projekt-detail.png)
+*Projekt-Detailansicht mit zugeordneten Aufgaben und Verlinkungsfunktion*
 
 ### Aufgaben
-![Tasks View](docs/screenshots/tasks.png)
+![Tasks View](docs/screenshots/aufgaben.png)
+*Aufgaben-Übersicht mit Filterung und Projekt-Zuordnung*
 
-### Modals
-![Task Create Modal](docs/screenshots/task-create.png)
-![Project Create Modal](docs/screenshots/project-create.png)
-![Link Task Modal](docs/screenshots/link-task.png)
+![Task Edit View](docs/screenshots/aufgabe-bearbeiten.png)
+*Aufgabe bearbeiten - Modal mit allen Feldern*
 
 </div>
 
-> **Hinweis**: Screenshots können mit den Anleitungen in [docs/screenshots/README.md](docs/screenshots/README.md) erstellt werden.
+> **Hinweis**: Weitere Screenshots können mit den Anleitungen in [docs/screenshots/README.md](docs/screenshots/README.md) erstellt werden.
 
 ## 🔑 Features
 
