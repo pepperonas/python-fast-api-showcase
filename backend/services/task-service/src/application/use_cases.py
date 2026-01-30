@@ -1,6 +1,7 @@
 """Use cases for task service (application layer)."""
 
 from typing import Optional, List
+from datetime import datetime
 from src.domain.task import Task, Project
 from src.domain.value_objects import TaskStatus, TaskPriority
 from src.domain.repository import ITaskRepository, IProjectRepository
@@ -43,7 +44,8 @@ class UpdateTaskUseCase:
         title: Optional[str] = None,
         description: Optional[str] = None,
         status: Optional[TaskStatus] = None,
-        priority: Optional[TaskPriority] = None
+        priority: Optional[TaskPriority] = None,
+        project_id: Optional[str] = None
     ) -> Task:
         """Update a task."""
         task = await self._task_repository.get_by_id(task_id)
@@ -58,6 +60,9 @@ class UpdateTaskUseCase:
             task.change_status(status)
         if priority is not None:
             task.change_priority(priority)
+        if project_id is not None:
+            task._project_id = project_id
+            task._updated_at = datetime.utcnow()
         
         return await self._task_repository.update(task)
 

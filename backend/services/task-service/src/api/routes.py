@@ -41,6 +41,7 @@ class UpdateTaskRequest(BaseModel):
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
     priority: Optional[TaskPriority] = None
+    project_id: Optional[str] = None
 
 
 class AssignTaskRequest(BaseModel):
@@ -172,7 +173,8 @@ async def update_task(
             title=request.title,
             description=request.description,
             status=request.status,
-            priority=request.priority
+            priority=request.priority,
+            project_id=request.project_id
         )
         return TaskDTO(
             id=task.id,

@@ -25,6 +25,9 @@
                 <div class="mt-2 flex space-x-4">
                   <span class="text-xs text-gray-500">Status: {{ task.status }}</span>
                   <span class="text-xs text-gray-500">Priorität: {{ task.priority }}</span>
+                  <span v-if="task.project_id" class="text-xs text-blue-600">
+                    Projekt: {{ getProjectName(task.project_id) }}
+                  </span>
                 </div>
               </div>
               <div class="flex space-x-2">
@@ -66,6 +69,15 @@
             />
           </div>
           <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Projekt (optional)</label>
+            <select v-model="taskForm.project_id" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option :value="undefined">Kein Projekt</option>
+              <option v-for="project in projectStore.projects" :key="project.id" :value="project.id">
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Priorität</label>
             <select v-model="taskForm.priority" class="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="low">Niedrig</option>
@@ -97,28 +109,37 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { useTaskStore } from '@/application/stores'
+import { useTaskStore, useProjectStore } from '@/application/stores'
 import type { Task } from '@/domain/models'
 
 const taskStore = useTaskStore()
+const projectStore = useProjectStore()
 const showCreateModal = ref(false)
 const editingTask = ref<Task | null>(null)
 
 const taskForm = reactive({
   title: '',
   description: '',
-  priority: 'medium'
+  priority: 'medium',
+  project_id: undefined as string | undefined
 })
 
 onMounted(async () => {
   await taskStore.fetchTasks()
+  await projectStore.fetchProjects()
 })
+
+function getProjectName(projectId: string): string {
+  const project = projectStore.projects.find(p => p.id === projectId)
+  return project ? project.name : 'Unbekannt'
+}
 
 function editTask(task: Task) {
   editingTask.value = task
   taskForm.title = task.title
   taskForm.description = task.description || ''
   taskForm.priority = task.priority
+  taskForm.project_id = task.project_id || undefined
 }
 
 function closeModal() {
@@ -127,6 +148,7 @@ function closeModal() {
   taskForm.title = ''
   taskForm.description = ''
   taskForm.priority = 'medium'
+  taskForm.project_id = undefined
 }
 
 async function handleSubmit() {
@@ -135,13 +157,14 @@ async function handleSubmit() {
       await taskStore.updateTask(editingTask.value.id, {
         title: taskForm.title,
         description: taskForm.description,
-        priority: taskForm.priority
+        priority: taskForm.priority,
+        project_id: taskForm.project_id
       })
     } else {
       await taskStore.createTask(
         taskForm.title,
         taskForm.description,
-        undefined,
+        taskForm.project_id,
         taskForm.priority
       )
     }
