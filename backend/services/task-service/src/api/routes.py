@@ -18,7 +18,8 @@ from src.application.use_cases import (
     UpdateTaskUseCase,
     AssignTaskUseCase,
     GetTasksByProjectUseCase,
-    CreateProjectUseCase
+    CreateProjectUseCase,
+    UpdateProjectUseCase
 )
 from src.infrastructure.repository import TaskRepository, ProjectRepository
 from src.domain.value_objects import TaskStatus, TaskPriority
@@ -44,15 +45,21 @@ class UpdateTaskRequest(BaseModel):
     project_id: Optional[str] = None
 
 
-class AssignTaskRequest(BaseModel):
-    """Request model for assigning a task."""
-    user_id: str
-
-
 class CreateProjectRequest(BaseModel):
     """Request model for creating a project."""
     name: str
     description: Optional[str] = None
+
+
+class UpdateProjectRequest(BaseModel):
+    """Request model for updating a project."""
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class AssignTaskRequest(BaseModel):
+    """Request model for assigning a task."""
+    user_id: str
 
 
 @router.get("/tasks", response_model=List[TaskDTO])
@@ -332,3 +339,35 @@ async def get_project(
         created_at=project.created_at,
         updated_at=project.updated_at
     )
+
+
+@router.put("/projects/{project_id}", response_model=ProjectDTO)
+async def update_project(
+    project_id: str,
+    request: UpdateProjectRequest,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
+):
+    """Update a project."""
+    repository = ProjectRepository(db)
+    use_case = UpdateProjectUseCase(repository)
+    
+    try:
+        project = await use_case.execute(
+            project_id=project_id,
+            name=request.name,
+            description=request.description
+        )
+        return ProjectDTO(
+            id=project.id,
+            name=project.name,
+            description=project.description,
+            created_by=project.created_by,
+            created_at=project.created_at,
+            updated_at=project.updated_at
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )

@@ -19,21 +19,32 @@
         <div
           v-for="project in projectStore.projects"
           :key="project.id"
-          class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
-          @click="$router.push(`/projects/${project.id}`)"
+          class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
         >
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ project.name }}</h3>
-          <p v-if="project.description" class="text-gray-600 mb-4">{{ project.description }}</p>
-          <p class="text-sm text-gray-500">Erstellt: {{ new Date(project.created_at).toLocaleDateString('de-DE') }}</p>
+          <div @click="$router.push(`/projects/${project.id}`)" class="cursor-pointer">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ project.name }}</h3>
+            <p v-if="project.description" class="text-gray-600 mb-4">{{ project.description }}</p>
+            <p class="text-sm text-gray-500">Erstellt: {{ new Date(project.created_at).toLocaleDateString('de-DE') }}</p>
+          </div>
+          <div class="mt-4 flex space-x-2">
+            <button
+              @click.stop="editProject(project)"
+              class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Bearbeiten
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Create Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <!-- Create/Edit Modal -->
+    <div v-if="showCreateModal || editingProject" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Neues Projekt erstellen</h3>
-        <form @submit.prevent="handleCreate">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">
+          {{ editingProject ? 'Projekt bearbeiten' : 'Neues Projekt erstellen' }}
+        </h3>
+        <form @submit.prevent="handleSubmit">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <input
@@ -54,7 +65,7 @@
           <div class="flex justify-end space-x-2">
             <button
               type="button"
-              @click="showCreateModal = false"
+              @click="closeModal"
               class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
             >
               Abbrechen
@@ -63,7 +74,7 @@
               type="submit"
               class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
             >
-              Erstellen
+              {{ editingProject ? 'Aktualisieren' : 'Erstellen' }}
             </button>
           </div>
         </form>
@@ -75,9 +86,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useProjectStore } from '@/application/stores'
+import type { Project } from '@/domain/models'
 
 const projectStore = useProjectStore()
 const showCreateModal = ref(false)
+const editingProject = ref<Project | null>(null)
 
 const projectForm = reactive({
   name: '',
@@ -88,14 +101,35 @@ onMounted(async () => {
   await projectStore.fetchProjects()
 })
 
-async function handleCreate() {
+function editProject(project: Project) {
+  editingProject.value = project
+  projectForm.name = project.name
+  projectForm.description = project.description || ''
+}
+
+function closeModal() {
+  showCreateModal.value = false
+  editingProject.value = null
+  projectForm.name = ''
+  projectForm.description = ''
+}
+
+async function handleSubmit() {
   try {
-    await projectStore.createProject(projectForm.name, projectForm.description)
-    showCreateModal.value = false
-    projectForm.name = ''
-    projectForm.description = ''
+    if (editingProject.value) {
+      await projectStore.updateProject(editingProject.value.id, {
+        name: projectForm.name,
+        description: projectForm.description
+      })
+    } else {
+      await projectStore.createProject(projectForm.name, projectForm.description)
+    }
+    closeModal()
+    // Refresh projects list
+    await projectStore.fetchProjects()
   } catch (error) {
-    alert('Fehler beim Erstellen des Projekts')
+    console.error('Error saving project:', error)
+    alert(editingProject.value ? 'Fehler beim Aktualisieren des Projekts' : 'Fehler beim Erstellen des Projekts')
   }
 }
 </script>

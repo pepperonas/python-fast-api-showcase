@@ -118,3 +118,28 @@ class CreateProjectUseCase:
             created_by=created_by
         )
         return await self._project_repository.create(project)
+
+
+class UpdateProjectUseCase:
+    """Use case for updating a project."""
+    
+    def __init__(self, project_repository: IProjectRepository):
+        self._project_repository = project_repository
+    
+    async def execute(
+        self,
+        project_id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None
+    ) -> Project:
+        """Update a project."""
+        project = await self._project_repository.get_by_id(project_id)
+        if not project:
+            raise ValueError(f"Project with id {project_id} not found")
+        
+        if name is not None:
+            project.update_name(name)
+        if description is not None:
+            project.update_description(description)
+        
+        return await self._project_repository.update(project)

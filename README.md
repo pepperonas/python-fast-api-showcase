@@ -190,6 +190,33 @@ Nach dem Start der Services ist die automatisch generierte API-Dokumentation ver
 - **Task Service**: http://localhost:8002/docs
 - **Notification Service**: http://localhost:8003/docs
 
+## 📸 Screenshots
+
+<div align="center">
+
+### Login & Registrierung
+![Login View](docs/screenshots/login.png)
+![Register View](docs/screenshots/register.png)
+
+### Dashboard & Übersicht
+![Dashboard View](docs/screenshots/dashboard.png)
+
+### Projekte
+![Projects View](docs/screenshots/projects.png)
+![Project Detail View](docs/screenshots/project-detail.png)
+
+### Aufgaben
+![Tasks View](docs/screenshots/tasks.png)
+
+### Modals
+![Task Create Modal](docs/screenshots/task-create.png)
+![Project Create Modal](docs/screenshots/project-create.png)
+![Link Task Modal](docs/screenshots/link-task.png)
+
+</div>
+
+> **Hinweis**: Screenshots können mit den Anleitungen in [docs/screenshots/README.md](docs/screenshots/README.md) erstellt werden.
+
 ## 🔑 Features
 
 ### Implementiert

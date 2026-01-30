@@ -37,6 +37,15 @@ export class UpdateTaskUseCase {
   }
 }
 
+export class UpdateProjectUseCase {
+  async execute(
+    projectId: string,
+    updates: { name?: string; description?: string }
+  ): Promise<Project> {
+    return await projectApi.updateProject(projectId, updates)
+  }
+}
+
 export class GetProjectsUseCase {
   async execute(): Promise<Project[]> {
     return await projectApi.getAllProjects()

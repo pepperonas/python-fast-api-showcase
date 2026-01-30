@@ -6,12 +6,18 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ project.name }}</h1>
         <p v-if="project.description" class="text-gray-600 mb-6">{{ project.description }}</p>
 
-        <div class="mb-6">
+        <div class="mb-6 flex space-x-2">
           <button
             @click="showCreateTaskModal = true"
             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
           >
             Neue Aufgabe
+          </button>
+          <button
+            @click="showLinkTaskModal = true"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            Aufgabe verlinken
           </button>
         </div>
 
@@ -77,6 +83,75 @@
         </form>
       </div>
     </div>
+
+    <!-- Link Task Modal -->
+    <div v-if="showLinkTaskModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="showLinkTaskModal = false">
+      <div class="relative top-20 mx-auto p-6 border w-full max-w-md shadow-xl rounded-lg bg-white">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Aufgabe verlinken</h3>
+        <form @submit.prevent="handleLinkTask">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-3">Aufgabe auswählen</label>
+            <div v-if="allTasks.length === 0" class="text-sm text-gray-500 py-8 text-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <p>Keine verfügbaren Aufgaben zum Verlinken</p>
+            </div>
+            <div v-else class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+              <div
+                v-for="task in allTasks"
+                :key="task.id"
+                @click="linkTaskForm.taskId = task.id"
+                class="px-4 py-3 border-b border-gray-100 hover:bg-indigo-50 cursor-pointer transition-colors"
+                :class="{ 'bg-indigo-100 border-indigo-300': linkTaskForm.taskId === task.id }"
+              >
+                <div class="flex items-start">
+                  <input
+                    type="radio"
+                    :value="task.id"
+                    v-model="linkTaskForm.taskId"
+                    class="mt-1 mr-3 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-900">{{ task.title }}</div>
+                    <div v-if="task.description" class="text-sm text-gray-600 mt-1">
+                      {{ task.description }}
+                    </div>
+                    <div class="flex items-center gap-3 mt-2">
+                      <span class="text-xs px-2 py-1 rounded-full"
+                            :class="{
+                              'bg-gray-100 text-gray-700': task.status === 'todo',
+                              'bg-yellow-100 text-yellow-700': task.status === 'in_progress',
+                              'bg-green-100 text-green-700': task.status === 'done',
+                              'bg-red-100 text-red-700': task.status === 'cancelled'
+                            }">
+                        {{ task.status }}
+                      </span>
+                      <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                        {{ task.priority }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              @click="showLinkTaskModal = false"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors font-medium"
+              :disabled="allTasks.length === 0 || !linkTaskForm.taskId"
+            >
+              Verlinken
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -92,12 +167,18 @@ const taskStore = useTaskStore()
 
 const project = ref<Project | null>(null)
 const tasks = ref<Task[]>([])
+const allTasks = ref<Task[]>([])
 const loading = ref(true)
 const showCreateTaskModal = ref(false)
+const showLinkTaskModal = ref(false)
 
 const taskForm = reactive({
   title: '',
   description: ''
+})
+
+const linkTaskForm = reactive({
+  taskId: ''
 })
 
 const projectId = computed(() => route.params.id as string)
@@ -105,6 +186,7 @@ const projectId = computed(() => route.params.id as string)
 onMounted(async () => {
   await loadProject()
   await loadTasks()
+  await loadAllTasks()
 })
 
 async function loadProject() {
@@ -125,6 +207,16 @@ async function loadTasks() {
   }
 }
 
+async function loadAllTasks() {
+  try {
+    allTasks.value = await taskApi.getAllTasks()
+    // Filter out tasks that are already linked to this project or another project
+    allTasks.value = allTasks.value.filter(task => !task.project_id || task.project_id === projectId.value)
+  } catch (error) {
+    console.error('Failed to load all tasks', error)
+  }
+}
+
 async function handleCreateTask() {
   try {
     const newTask = await taskStore.createTask(
@@ -136,8 +228,27 @@ async function handleCreateTask() {
     showCreateTaskModal.value = false
     taskForm.title = ''
     taskForm.description = ''
+    await loadAllTasks()
   } catch (error) {
     alert('Fehler beim Erstellen der Aufgabe')
+  }
+}
+
+async function handleLinkTask() {
+  try {
+    if (!linkTaskForm.taskId) {
+      alert('Bitte wählen Sie eine Aufgabe aus')
+      return
+    }
+    await taskStore.updateTask(linkTaskForm.taskId, {
+      project_id: projectId.value
+    })
+    await loadTasks()
+    await loadAllTasks()
+    showLinkTaskModal.value = false
+    linkTaskForm.taskId = ''
+  } catch (error) {
+    alert('Fehler beim Verlinken der Aufgabe')
   }
 }
 

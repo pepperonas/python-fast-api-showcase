@@ -9,6 +9,7 @@ import {
   UpdateTaskUseCase,
   GetProjectsUseCase,
   CreateProjectUseCase,
+  UpdateProjectUseCase,
   RegisterUserUseCase,
   LoginUseCase,
   GetNotificationsUseCase
@@ -128,6 +129,7 @@ export const useProjectStore = defineStore('projects', () => {
 
   const getProjectsUseCase = new GetProjectsUseCase()
   const createProjectUseCase = new CreateProjectUseCase()
+  const updateProjectUseCase = new UpdateProjectUseCase()
 
   async function fetchProjects() {
     loading.value = true
@@ -156,12 +158,31 @@ export const useProjectStore = defineStore('projects', () => {
     }
   }
 
+  async function updateProject(projectId: string, updates: { name?: string; description?: string }) {
+    loading.value = true
+    error.value = null
+    try {
+      const updatedProject = await updateProjectUseCase.execute(projectId, updates)
+      const index = projects.value.findIndex(p => p.id === projectId)
+      if (index !== -1) {
+        projects.value[index] = updatedProject
+      }
+      return updatedProject
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to update project'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     projects,
     loading,
     error,
     fetchProjects,
-    createProject
+    createProject,
+    updateProject
   }
 })
 

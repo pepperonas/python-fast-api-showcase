@@ -99,6 +99,11 @@ export const projectApi = {
   async createProject(data: { name: string; description?: string }): Promise<Project> {
     const response = await taskApiClient.post('/api/v1/projects', data)
     return response.data
+  },
+
+  async updateProject(projectId: string, data: { name?: string; description?: string }): Promise<Project> {
+    const response = await taskApiClient.put(`/api/v1/projects/${projectId}`, data)
+    return response.data
   }
 }
 
