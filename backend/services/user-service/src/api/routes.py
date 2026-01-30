@@ -97,6 +97,19 @@ async def get_me(
     return current_user
 
 
+@router.get("/credentials")
+async def get_credentials():
+    """
+    Dummy endpoint for browser extensions (password managers).
+    Returns 404 to indicate this endpoint is not used.
+    """
+    from fastapi import HTTPException, status
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="This endpoint is not implemented. Use /api/v1/auth/login for authentication."
+    )
+
+
 @router.get("/users/{user_id}", response_model=UserDTO)
 async def get_user(
     user_id: str,

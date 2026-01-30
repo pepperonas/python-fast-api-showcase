@@ -28,6 +28,8 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = response.access_token
     user.value = response.user
     localStorage.setItem('token', response.access_token)
+    // Set login time for grace period
+    sessionStorage.setItem('loginTime', Date.now().toString())
     return response
   }
 
@@ -41,6 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('token')
+    sessionStorage.removeItem('loginTime')
   }
 
   return {

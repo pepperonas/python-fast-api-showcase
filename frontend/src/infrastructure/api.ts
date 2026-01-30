@@ -36,8 +36,26 @@ function createApiClient(baseURL: string): AxiosInstance {
   client.interceptors.response.use(
     (response) => response,
     (error) => {
+      // Only redirect to login for 401 errors, but ignore during grace period after login
+      // and ignore errors from browser extensions (like /api/v1/credentials)
       if (error.response?.status === 401) {
+        const url = error.config?.url || ''
+        // Ignore credentials endpoint (used by browser extensions)
+        if (url.includes('/credentials')) {
+          return Promise.reject(error)
+        }
+        // Check if we're in a grace period (just logged in)
+        const loginTime = sessionStorage.getItem('loginTime')
+        if (loginTime) {
+          const timeSinceLogin = Date.now() - parseInt(loginTime)
+          // Grace period: 5 seconds after login
+          if (timeSinceLogin < 5000) {
+            console.warn('401 error during grace period after login, ignoring logout:', url)
+            return Promise.reject(error)
+          }
+        }
         localStorage.removeItem('token')
+        sessionStorage.removeItem('loginTime')
         window.location.href = '/login'
       }
       return Promise.reject(error)
