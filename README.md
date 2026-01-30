@@ -1,5 +1,14 @@
 # Task Management SaaS - Showcase Projekt
 
+[![CI](https://github.com/pepperonas/python-fast-api-showcase/actions/workflows/ci.yml/badge.svg)](https://github.com/pepperonas/python-fast-api-showcase/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20-green.svg)](https://nodejs.org/)
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D.svg)](https://vuejs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+
 Ein vollständiges Task-Management-SaaS-System, das moderne Software-Engineering-Praktiken demonstriert. Dieses Projekt wurde als Portfolio-Showcase entwickelt und zeigt Best Practices in Fullstack-Entwicklung mit Vue 3, TypeScript, FastAPI und Microservices-Architektur.
 
 ## 🏗️ Architektur-Übersicht
